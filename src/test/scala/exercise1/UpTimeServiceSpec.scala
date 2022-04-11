@@ -1,5 +1,6 @@
 package exercise1
 
+import cats.Id
 import org.scalatest.BeforeAndAfter
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
@@ -8,7 +9,7 @@ class UpTimeServiceSpec  extends AnyFunSpec
   with BeforeAndAfter
   with Matchers {
 
-  val upTimeService : UpTimeService = ???
+  val upTimeService : UpTimeService[Id] = new UpTimeService[Id](new IdUpTimeClient(Map("host1" -> 2, "host2" -> 4, "host3" -> 3)))
 
 
   describe("Given three hosts"){
@@ -26,4 +27,10 @@ class UpTimeServiceSpec  extends AnyFunSpec
     }
   }
 
+}
+
+class IdUpTimeClient(fakeDatabase : Map[String, Int]) extends UpTimeClient[Id] {
+  override def get(hostname: String): Id[Int] = {
+    fakeDatabase.getOrElse(hostname, 0)
+  }
 }

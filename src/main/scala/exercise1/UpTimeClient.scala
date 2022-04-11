@@ -1,9 +1,7 @@
 package exercise1
 
-import scala.concurrent.Future
+trait UpTimeClient[F[_]] {
 
-trait UpTimeClient {
-
-  def get(hostname : String) : Future[Int]
+  def get(hostname : String) : F[Int]
 
 }

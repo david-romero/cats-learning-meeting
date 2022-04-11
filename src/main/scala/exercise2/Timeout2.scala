@@ -1,5 +1,6 @@
 package exercise2
 
+import cats.data.EitherT
 import cats.effect.{ExitCode, IO, IOApp}
 
 import scala.concurrent.TimeoutException
@@ -16,7 +17,9 @@ object Timeout2 extends IOApp {
   } yield ExitCode.Success
 
 
-  def timeout[A](task: IO[A]): IO[Either[TimeoutException, A]] = ???
+  def timeout[A](task: IO[A]): IO[Either[TimeoutException, A]] =     EitherT(IO.race(timeoutTask, task))
+    .leftMap(_ => new TimeoutException())
+    .value
 
   private def timeoutTask: IO[Unit] =
     IO.delay(println("Starting timeout")) *>

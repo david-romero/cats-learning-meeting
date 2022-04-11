@@ -1,7 +1,12 @@
 package exercise1
 
-class UpTimeService(client: UpTimeClient) {
+import cats.Applicative
+import cats.implicits.{toFunctorOps, toTraverseOps}
 
-  def totalUpTime(hostnames : List[String]) : Int = ???
+class UpTimeService[F[_] : Applicative](client: UpTimeClient[F]) {
+
+  def totalUpTime(hostnames : List[String]) : F[Int] = {
+    hostnames.traverse(client.get).map(_.sum)
+  }
 
 }

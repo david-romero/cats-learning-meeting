@@ -1,6 +1,7 @@
 package exercise2
 
 import cats.effect.{ExitCode, IO, IOApp}
+import cats.implicits.{catsSyntaxApplicativeError, catsSyntaxEitherId, catsSyntaxTuple2Parallel}
 
 import scala.concurrent.TimeoutException
 import scala.concurrent.duration.DurationInt
@@ -16,7 +17,13 @@ object Timeout1 extends IOApp{
   } yield ExitCode.Success
 
 
-  def timeout[A](task : IO[A]): IO[Either[TimeoutException, A]] = ???
+  def timeout[A](task : IO[A]): IO[Either[TimeoutException, A]] = {
+    (timeoutTask, task).parTupled
+      .map(_._2.asRight[TimeoutException])
+      .recover {
+        case e : TimeoutException => e.asLeft[A]
+      }
+  }
 
   private def timeoutTask : IO[Unit] =
     IO.delay(println("Starting timeout")) *>
